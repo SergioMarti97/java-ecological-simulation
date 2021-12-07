@@ -13,6 +13,11 @@ import olcPGEApproach.vectors.points2d.Vec2df;
 import java.util.HashMap;
 import java.util.Map;
 
+/**
+ * Now, the neuron is a composition of
+ * classes and not inherits from the ball
+ * class
+ */
 public class Neuron implements Updatable, Drawable, Clickable2D {
 
     private int id;
@@ -29,6 +34,9 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
 
     private final NeuronFunction function;
 
+    /**
+     * Neuron and the weight of the connexion
+     */
     private HashMap<Neuron, Float> children = new HashMap<>();
 
     private Ball b;
@@ -96,7 +104,11 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
 
     @Override
     public String toString() {
-        return "Neuron{" + id + "} bias: " + bias + "";
+        StringBuilder con = new StringBuilder();
+        for (Map.Entry<Neuron, Float> e : children.entrySet()) {
+            con.append(e.getKey().getId()).append(':').append(e.getValue()).append(';');
+        }
+        return "" + id + ' ' + functionName + ' ' + bias + ' ' + con;
     }
 
     // Getters & Setters
@@ -118,6 +130,10 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
 
     public void setInput(double input) {
         this.input = input;
+    }
+
+    public void clearInput() {
+        input = 0;
     }
 
     public double getBias() {

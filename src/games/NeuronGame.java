@@ -66,7 +66,7 @@ public class NeuronGame implements AbstractGame {
     @Override
     public void update(GameContainer gc, float dt) {
         for (Neuron n : neurons) {
-            n.setInput(0);
+            n.clearInput();
         }
         neurons.get(0).setInput((float) gc.getInput().getMouseX());
         for (Neuron n : neurons) {

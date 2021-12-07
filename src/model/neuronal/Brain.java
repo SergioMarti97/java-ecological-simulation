@@ -4,39 +4,80 @@ import model.Drawable;
 import model.entities.Updatable;
 import olcPGEApproach.gfx.Renderer;
 
-import java.util.ArrayList;
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.util.HashMap;
+import java.util.Map;
 
 public class Brain implements Updatable, Drawable {
 
     private int numLayers = 2;
 
-    private final HashMap<String, Neuron> inputs = new HashMap<>();
+    /**
+     * layer inputs
+     * name and id
+     */
+    private final HashMap<String, Integer> inputs = new HashMap<>();
 
-    private final HashMap<String, Neuron> outputs = new HashMap<>();
+    /**
+     * Layer outputs
+     * name and id
+     */
+    private final HashMap<String, Integer> outputs = new HashMap<>();
 
-    private final ArrayList<Neuron> neurons = new ArrayList<>();
+    /**
+     * All neurons
+     * id and neuron
+     */
+    private final HashMap<Integer, Neuron> neurons = new HashMap<>();
 
     public Brain() {
 
     }
 
+    public void readFromFile(String file) {
+        try (BufferedReader br = new BufferedReader(new FileReader(file))) {
+            String line;
+            do {
+                line = br.readLine();
+
+            } while (line != null);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveToFile(String file) {
+
+    }
+
+    public Neuron getIn(String name) {
+        return neurons.get(inputs.get(name));
+    }
+
+    public Neuron getOut(String name) {
+        return neurons.get(outputs.get(name));
+    }
+
     @Override
     public void update(float dt) {
         // clear neuron inputs
-        for (Neuron n : neurons) {
-            n.setInput(0);
+        for (Map.Entry<Integer, Neuron> e : neurons.entrySet()) {
+            if (!inputs.containsValue(e.getKey())) {
+                e.getValue().clearInput();
+            }
         }
         // update all neurons
-        for (Neuron n : neurons) {
-            n.update(dt);
+        for (Map.Entry<Integer, Neuron> e : neurons.entrySet()) {
+            e.getValue().update(dt);
         }
     }
 
     @Override
     public void drawYourSelf(Renderer r) {
-        for (Neuron n : neurons) {
-            n.drawYourSelf(r);
+        for (Map.Entry<Integer, Neuron> e : neurons.entrySet()) {
+            e.getValue().drawYourSelf(r);
         }
     }
 }
