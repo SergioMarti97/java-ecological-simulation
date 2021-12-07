@@ -1,8 +1,11 @@
 package games;
 
+import javafx.scene.input.MouseButton;
 import model.neuronal.Neuron;
+import model.neuronal.NeuronFunctions;
 import olcPGEApproach.AbstractGame;
 import olcPGEApproach.GameContainer;
+import olcPGEApproach.Input;
 import olcPGEApproach.gfx.HexColors;
 import olcPGEApproach.vectors.points2d.Vec2df;
 
@@ -11,34 +14,65 @@ import java.util.Random;
 
 public class NeuronGame implements AbstractGame {
 
-    private ArrayList<Neuron> neurons = new ArrayList<>();
+    private final ArrayList<Neuron> neurons = new ArrayList<>();
+
+    private Neuron selectedNeuron = null;
+
+    private int calRndInt(Random rnd, int max, int min) {
+        return rnd.nextInt(max - min) + min;
+    }
+
+    private float calRndFloat(Random rnd, float max, float min) {
+        return (max - min) * rnd.nextFloat() + min;
+    }
 
     @Override
     public void initialize(GameContainer gc) {
         Random rnd = new Random();
         int x = 100;
         for (int i = 0; i < 5; i++) {
-            Neuron n = new Neuron(new Vec2df(x, 100), 30, HexColors.YELLOW);
+            Neuron n = new Neuron(calRndInt(rnd, 3, 1), NeuronFunctions.obtainRandomNF(rnd).name());
+            n.getB().getPos().setX(x);
+            n.getB().getPos().setY(100);
             n.setId(neurons.size());
-            n.setModule(rnd.nextInt(20) - 10);
             neurons.add(n);
             x += 130;
         }
-        neurons.get(0).getChildren().add(neurons.get(1));
-        neurons.get(1).getChildren().add(neurons.get(2));
-        neurons.get(2).getChildren().add(neurons.get(3));
-        neurons.get(3).getChildren().add(neurons.get(4));
+        neurons.get(0).addConnexion(neurons.get(1), calRndFloat(rnd, 1, -1));
+        neurons.get(1).addConnexion(neurons.get(2), calRndFloat(rnd, 1, -1));
+        neurons.get(2).addConnexion(neurons.get(3), calRndFloat(rnd, 1, -1));
+        neurons.get(3).addConnexion(neurons.get(4), calRndFloat(rnd, 1, -1));
+    }
+
+    private void updateUserInput(Input input) {
+        if (input.isButtonDown(MouseButton.PRIMARY)) {
+            for (Neuron n : neurons) {
+                if (n.isMouseInside(input.getMouseX(), input.getMouseY())) {
+                    selectedNeuron = n;
+                }
+            }
+        }
+        if (input.isButtonHeld(MouseButton.PRIMARY)) {
+            if (selectedNeuron != null) {
+                selectedNeuron.getB().getPos().setX((float) input.getMouseX());
+                selectedNeuron.getB().getPos().setY((float) input.getMouseY());
+            }
+        }
+        if (input.isButtonUp(MouseButton.PRIMARY)) {
+            selectedNeuron = null;
+        }
     }
 
     @Override
-    public void update(GameContainer gc, float v) {
+    public void update(GameContainer gc, float dt) {
         for (Neuron n : neurons) {
-            n.setValue(0);
+            n.setInput(0);
         }
-        neurons.get(0).setValue((float) gc.getInput().getMouseX());
+        neurons.get(0).setInput((float) gc.getInput().getMouseX());
         for (Neuron n : neurons) {
-            n.giveValueToChildren();
+            n.update(dt);
         }
+        updateUserInput(gc.getInput());
     }
 
     @Override

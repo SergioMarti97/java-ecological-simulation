@@ -1,6 +1,7 @@
 package sample;
 
 import games.EcologicalSimulation2;
+import games.NeuronGame;
 import javafx.fxml.FXML;
 import javafx.fxml.Initializable;
 import javafx.scene.image.ImageView;
@@ -17,7 +18,7 @@ public class Controller implements Initializable {
 
     @Override
     public void initialize(URL location, ResourceBundle resources) {
-        AbstractGame game = new EcologicalSimulation2();
+        AbstractGame game = new NeuronGame();
         GameContainer gc = new GameContainer(game,
                 (int)imgView.getFitWidth(),
                 (int)imgView.getFitHeight(),
