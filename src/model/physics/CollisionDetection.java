@@ -58,4 +58,11 @@ public class CollisionDetection {
         }
     }
 
+    // is point in rectangle
+
+    public static boolean isPointInRect(double x, double y, int posX, int posY, int w, int h) {
+        return x >= posX && x <= (posX + w) &&
+                y >= posY && y <= (posY + h);
+    }
+
 }

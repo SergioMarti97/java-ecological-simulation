@@ -1,7 +1,7 @@
 package model.neuronal;
 
 import model.Clickable2D;
-import model.CustomColor;
+import model.DrawUtils;
 import model.Drawable;
 import model.entities.Updatable;
 import model.entities.balls.Ball;
@@ -9,6 +9,7 @@ import model.physics.CollisionDetection;
 import olcPGEApproach.gfx.HexColors;
 import olcPGEApproach.gfx.Renderer;
 import olcPGEApproach.vectors.points2d.Vec2df;
+import olcPGEApproach.vectors.points2d.Vec2di;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -37,13 +38,13 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
     /**
      * Neuron and the weight of the connexion
      */
-    private HashMap<Neuron, Float> children = new HashMap<>();
+    private HashMap<Neuron, Double> children = new HashMap<>();
 
     private Ball b;
 
     // Constructor
     public Neuron(double bias, String function) {
-        b = new Ball(new Vec2df(), 20, HexColors.YELLOW);
+        b = new Ball(new Vec2df(), 20, 0xFFE5E8E8);
         this.bias = bias;
         functionName = function;
         this.function = NeuronFunctions.obtainFunction(function);
@@ -59,12 +60,12 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
         input += quantity;
     }
 
-    public void addConnexion(Neuron n, float weight) {
+    public void addConnexion(Neuron n, double weight) {
         children.put(n, weight);
     }
 
     public void giveValueToChildren() {
-        for (Map.Entry<Neuron, Float> e : children.entrySet()) {
+        for (Map.Entry<Neuron, Double> e : children.entrySet()) {
             e.getKey().addToInput(this.result() * e.getValue());
         }
     }
@@ -75,20 +76,41 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
         giveValueToChildren();
     }
 
+    public void drawConnection(Renderer r, int x1, int y1, int x2, int y2, double weight) {
+        final int maxThickness = 12;
+        final int minThickness = 1;
+        int color;
+        int thickness;
+        if (weight > 0) {
+            color = DrawUtils.interpolateColor(HexColors.GREEN, HexColors.WHITE, weight);
+            thickness = (int)(weight * (maxThickness - minThickness) + minThickness);
+        } else {
+            color = DrawUtils.interpolateColor(HexColors.RED, HexColors.WHITE, -weight);
+            thickness = (int)(-weight * (maxThickness - minThickness) + minThickness);
+        }
+
+        if (thickness == minThickness) {
+            r.drawLine(x1, y1, x2, y2, color);
+        } else {
+            DrawUtils.drawThickLine(r, x1, y1, x2, y2, thickness, color);
+        }
+
+        String out = String.format("%.3f", weight);
+        int offText = (out.length() / 2) * 10;
+        r.drawText(out,
+                (int)((x2 - x1) / 2 + b.getPos().getX() - offText),
+                (int)((y2 - y1) / 2 + b.getPos().getY()),
+                HexColors.BLUE);
+    }
+
     @Override
     public void drawYourSelf(Renderer r) {
-        for (Map.Entry<Neuron, Float> e : children.entrySet()) {
+        for (Map.Entry<Neuron, Double> e : children.entrySet()) {
             int sx = (int)b.getPos().getX();
             int sy = (int)b.getPos().getY();
             int ex = (int)e.getKey().getB().getPos().getX();
             int ey = (int)e.getKey().getB().getPos().getY();
-            r.drawLine(sx, sy, ex, ey, HexColors.BLACK);
-            String out = String.format("%.3f", e.getValue());
-            int offText = (out.length() / 2) * 10;
-            r.drawText(out,
-                    (int)((ex - sx) / 2 + b.getPos().getX() - offText),
-                    (int)((ey - sy) / 2 + b.getPos().getY()),
-                    HexColors.BLUE);
+            drawConnection(r, sx, sy, ex, ey, e.getValue());
         }
         b.drawYourSelf(r);
         r.drawText(functionName,(int)b.getPos().getX(), (int)b.getPos().getY(), HexColors.BLACK);
@@ -105,10 +127,10 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
     @Override
     public String toString() {
         StringBuilder con = new StringBuilder();
-        for (Map.Entry<Neuron, Float> e : children.entrySet()) {
+        for (Map.Entry<Neuron, Double> e : children.entrySet()) {
             con.append(e.getKey().getId()).append(':').append(e.getValue()).append(';');
         }
-        return "" + id + ' ' + functionName + ' ' + bias + ' ' + con;
+        return "" + id + ';' + numLayer + ';' + functionName + ';' + bias + ';' + con;
     }
 
     // Getters & Setters
@@ -144,11 +166,11 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
         this.bias = bias;
     }
 
-    public HashMap<Neuron, Float> getChildren() {
+    public HashMap<Neuron, Double> getChildren() {
         return children;
     }
 
-    public void setChildren(HashMap<Neuron, Float> children) {
+    public void setChildren(HashMap<Neuron, Double> children) {
         this.children = children;
     }
 
