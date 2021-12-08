@@ -1,7 +1,6 @@
 package games;
 
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
 import model.neuronal.Brain;
 import model.neuronal.BrainUtils;
 import model.neuronal.Neuron;
@@ -10,72 +9,43 @@ import olcPGEApproach.AbstractGame;
 import olcPGEApproach.GameContainer;
 import olcPGEApproach.Input;
 import olcPGEApproach.gfx.HexColors;
-import olcPGEApproach.vectors.points2d.Vec2di;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.Random;
 
 public class NeuronGame implements AbstractGame {
 
+    private final String path = "C:\\Users\\Sergio\\IdeaProjects\\JAVAFX\\javafx-pelotas\\resources\\brains\\brain.txt";
+
     private Brain brain;
-
-    private int calRndInt(Random rnd, int max, int min) {
-        return rnd.nextInt(max - min) + min;
-    }
-
-    private float calRndFloat(Random rnd, float max, float min) {
-        return (max - min) * rnd.nextFloat() + min;
-    }
 
     @Override
     public void initialize(GameContainer gc) {
-        /*Random rnd = new Random();
-        // Create neurons
-        int x = 100;
-        final ArrayList<Neuron> neurons = new ArrayList<>();
-        for (int i = 0; i < 5; i++) {
-            Neuron n = new Neuron(calRndInt(rnd, 3, 1), NeuronFunctions.obtainRandomNF(rnd).name());
-            n.getB().getPos().setX(x);
-            n.getB().getPos().setY(100);
-            n.setId(neurons.size());
-            neurons.add(n);
-            x += 130;
-        }
-
-        // Make connexions between neurons
-        neurons.get(0).setLayer(0);
-        neurons.get(0).addConnexion(neurons.get(1), calRndFloat(rnd, 1, -1));
-        neurons.get(0).addConnexion(neurons.get(2), calRndFloat(rnd, 1, -1));
-        neurons.get(1).setLayer(1);
-        neurons.get(2).setLayer(1);
-
-        neurons.get(1).addConnexion(neurons.get(3), calRndFloat(rnd, 1, -1));
-        neurons.get(2).addConnexion(neurons.get(3), calRndFloat(rnd, 1, -1));
-        neurons.get(3).setLayer(2);
-
-        neurons.get(3).addConnexion(neurons.get(4), calRndFloat(rnd, 1, -1));
-        neurons.get(4).setLayer(3);
-
-        // Input and Output layer
-        final HashMap<String, Neuron> inputs = new HashMap<>();
-        inputs.put("i", neurons.get(0));
-
-        final HashMap<String, Neuron> output = new HashMap<>();
-        output.put("o", neurons.get(4));
-
-        // Create the brain
-        brain = new Brain(inputs, output, neurons);*/
         brain = new Brain();
-        BrainUtils.readFromFile(brain, "C:\\Users\\Sergio\\IdeaProjects\\JAVAFX\\javafx-pelotas\\resources\\brains\\brain.txt");
+        BrainUtils.readFromFile(brain, path);
+
+        /*for (int i = 0; i < 2; i++) {
+            Neuron n = BrainUtils.buildRndNeuron(new Random(), 12, 5);
+            BrainUtils.addNeuron(brain, 2, n);
+        }*/
+
         brain.calNeuronsPositions();
     }
 
     private void updateUserInput(Input input) {
         brain.updateUserInput(input);
 
+        if (input.isKeyDown(KeyCode.R)) {
+            BrainUtils.makeRndConnection(brain, new Random(), 1, -1);
+        }
+
+        if (input.isKeyDown(KeyCode.T)) {
+            String file = "C:\\Users\\Sergio\\IdeaProjects\\JAVAFX\\javafx-pelotas\\resources\\brains\\result_test.txt";
+            BrainUtils.saveTest(brain, "i", "o", -100, 100, 1, file);
+            System.out.println("saved test");
+        }
+
         if (input.isKeyDown(KeyCode.SPACE)) {
-            BrainUtils.saveToFile(brain, "C:\\Users\\Sergio\\IdeaProjects\\JAVAFX\\javafx-pelotas\\resources\\brains\\brain.txt");
+            BrainUtils.saveToFile(brain, path);
             System.out.println("saved brain");
         }
     }

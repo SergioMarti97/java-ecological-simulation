@@ -9,7 +9,6 @@ import model.physics.CollisionDetection;
 import olcPGEApproach.gfx.HexColors;
 import olcPGEApproach.gfx.Renderer;
 import olcPGEApproach.vectors.points2d.Vec2df;
-import olcPGEApproach.vectors.points2d.Vec2di;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -113,10 +112,11 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
             drawConnection(r, sx, sy, ex, ey, e.getValue());
         }
         b.drawYourSelf(r);
-        r.drawText(functionName,(int)b.getPos().getX(), (int)b.getPos().getY(), HexColors.BLACK);
-        r.drawText(String.format("in: %.3f", input), (int)b.getPos().getX(), (int)b.getPos().getY() + 25, HexColors.BLACK);
-        r.drawText(String.format("out: %.3f", output), (int)b.getPos().getX(), (int)b.getPos().getY() + 50, HexColors.GREEN);
-        r.drawText(String.format("bias: %.3f", bias), (int)b.getPos().getX(), (int)b.getPos().getY() + 75, HexColors.RED);
+        r.drawText(b.toString(), (int)b.getPos().getX(), (int)b.getPos().getY(), HexColors.BLACK);
+        r.drawText(functionName, (int)b.getPos().getX(), (int)b.getPos().getY() + 25, HexColors.BLACK);
+        r.drawText(String.format("in: %.3f", input), (int)b.getPos().getX(), (int)b.getPos().getY() + 50, HexColors.BLACK);
+        r.drawText(String.format("out: %.3f", output), (int)b.getPos().getX(), (int)b.getPos().getY() + 75, HexColors.GREEN);
+        r.drawText(String.format("bias: %.3f", bias), (int)b.getPos().getX(), (int)b.getPos().getY() + 100, HexColors.RED);
     }
 
     @Override
@@ -140,9 +140,10 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
 
     public void setId(int id) {
         this.id = id;
+        this.b.setId(id);
     }
 
-    private double result() {
+    public double result() {
         return output;
     }
 

@@ -10,10 +10,8 @@ import olcPGEApproach.gfx.HexColors;
 import olcPGEApproach.gfx.Renderer;
 import olcPGEApproach.vectors.points2d.Vec2di;
 
-import java.util.ArrayList;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
+import java.util.stream.Collectors;
 
 public class Brain implements Updatable, Drawable, Clickable2D {
 
@@ -75,7 +73,12 @@ public class Brain implements Updatable, Drawable, Clickable2D {
         }
         for (Neuron n : neurons) {
             this.neurons.put(n.getId(), n);
+            if (n.getLayer() > numLayers - 1) {
+                numLayers = n.getLayer() + 1;
+            }
         }
+        // maybe...
+        // numLayers++;
 
         calNeuronsPositions();
     }
@@ -181,8 +184,8 @@ public class Brain implements Updatable, Drawable, Clickable2D {
             }
         }
         // update all neurons
-        for (Map.Entry<Integer, Neuron> e : neurons.entrySet()) {
-            e.getValue().update(dt);
+        for (Neuron n : neurons.values().stream().sorted(Comparator.comparingInt(Neuron::getLayer)).collect(Collectors.toList())) {
+            n.update(dt);
         }
     }
 
@@ -236,6 +239,16 @@ public class Brain implements Updatable, Drawable, Clickable2D {
         }
     }
 
+    private void drawSections(Renderer r) {
+        int sectionW = realSize.getX() / (numLayers + 1);
+        int x = offset.getX() + paddingLT.getX();
+        int y = offset.getY() + paddingLT.getY();
+        for (int i = 0; i < numLayers + 1; i++) {
+            r.drawRect(x, y, sectionW, realSize.getY(), HexColors.CYAN);
+            x += sectionW;
+        }
+    }
+
     @Override
     public void drawYourSelf(Renderer r) {
         r.drawFillRect(
@@ -245,8 +258,9 @@ public class Brain implements Updatable, Drawable, Clickable2D {
                 size.getY(),
                 HexColors.WHITE
         );
-        for (Map.Entry<Integer, Neuron> e : neurons.entrySet()) {
-            e.getValue().drawYourSelf(r);
+        drawSections(r);
+        for (Neuron n : neurons.values().stream().sorted(Comparator.comparingInt(Neuron::getLayer)).collect(Collectors.toList())) {
+            n.drawYourSelf(r);
         }
     }
 
