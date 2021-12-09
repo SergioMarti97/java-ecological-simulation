@@ -1,6 +1,7 @@
 package model.entities.balls;
 
 import model.CustomColor;
+import model.DrawUtils;
 import model.Drawable;
 import olcPGEApproach.gfx.HexColors;
 import olcPGEApproach.gfx.Renderer;
@@ -40,9 +41,7 @@ public class Ball implements Drawable {
 
     @Override
     public void drawYourSelf(Renderer r) {
-        r.drawFillCircle((int)pos.getX(), (int)pos.getY(), getR(), HexColors.BLACK);
-        r.drawFillCircle((int)pos.getX(), (int)pos.getY(), this.r, col.getHex());
-        //r.drawText(String.format("id:%d", id), (int)pos.getX(), (int)pos.getY(), HexColors.BLACK);
+        DrawUtils.drawBallWithBorder(r, this);
     }
 
     public float getMass() {

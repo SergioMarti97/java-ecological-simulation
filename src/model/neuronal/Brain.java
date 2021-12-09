@@ -77,9 +77,6 @@ public class Brain implements Updatable, Drawable, Clickable2D {
                 numLayers = n.getLayer() + 1;
             }
         }
-        // maybe...
-        // numLayers++;
-
         calNeuronsPositions();
     }
 
@@ -256,7 +253,7 @@ public class Brain implements Updatable, Drawable, Clickable2D {
                 offset.getY(),
                 size.getX(),
                 size.getY(),
-                HexColors.WHITE
+                HexColors.GREY
         );
         drawSections(r);
         for (Neuron n : neurons.values().stream().sorted(Comparator.comparingInt(Neuron::getLayer)).collect(Collectors.toList())) {

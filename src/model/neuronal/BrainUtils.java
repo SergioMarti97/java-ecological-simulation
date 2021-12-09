@@ -135,10 +135,10 @@ public class BrainUtils {
 
                     b.getNeurons().put(n.getId(), n);
 
-                    if (info[0].matches("i*")) { // input neuron
+                    if (info[0].toCharArray()[0] == 'i') { // input neuron
                         b.getInputs().put(info[0], n.getId());
                     }
-                    if (info[0].matches("o*")) { // output neuron
+                    if (info[0].toCharArray()[0] == 'o') { // output neuron
                         b.getOutputs().put(info[0], n.getId());
                     }
                 }

@@ -65,4 +65,25 @@ public class CollisionDetection {
                 y >= posY && y <= (posY + h);
     }
 
+    // is point in triangle
+    private static int ccw(int ax, int ay, int bx, int by, int cx, int cy) {
+        return (bx - ax) * (cy - ay) - (cx - ax) * (by - ay);
+    }
+
+    public static boolean isPointInTriangle(double x, double y, int x1, int y1, int x2, int y2, int x3, int y3) {
+        if (ccw(x1, y1, x2, y2, x3, y3) > 0) {
+            // then change one vertex by other vertex
+            int temp = x1;
+            x1 = x2;
+            x2 = temp;
+
+            temp = y1;
+            y1 = y2;
+            y2 = temp;
+        }
+        return (x1 - x2) * (y - y1) - (y1 - y2) * (x - x1) > 0 &&
+                (x2 - x3) * (y - y2) - (y2 - y3) * (x - x2) > 0 &&
+                (x3 - x1) * (y - y3) - (y3 - y1) * (x - x3) > 0;
+    }
+
 }

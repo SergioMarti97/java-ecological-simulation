@@ -1,6 +1,7 @@
 package games;
 
 import javafx.scene.input.KeyCode;
+import model.entities.balls.Ball;
 import model.neuronal.Brain;
 import model.neuronal.BrainUtils;
 import model.neuronal.Neuron;
@@ -9,6 +10,7 @@ import olcPGEApproach.AbstractGame;
 import olcPGEApproach.GameContainer;
 import olcPGEApproach.Input;
 import olcPGEApproach.gfx.HexColors;
+import olcPGEApproach.vectors.points2d.Vec2df;
 
 import java.util.Random;
 
@@ -17,6 +19,10 @@ public class NeuronGame implements AbstractGame {
     private final String path = "C:\\Users\\Sergio\\IdeaProjects\\JAVAFX\\javafx-pelotas\\resources\\brains\\brain.txt";
 
     private Brain brain;
+
+    private Ball inputBall;
+
+    private Ball outputBall;
 
     @Override
     public void initialize(GameContainer gc) {
@@ -29,6 +35,9 @@ public class NeuronGame implements AbstractGame {
         }*/
 
         brain.calNeuronsPositions();
+
+        outputBall = new Ball(new Vec2df(), 12, HexColors.YELLOW);
+        inputBall = new Ball(new Vec2df(), 12, HexColors.ORANGE);
     }
 
     private void updateUserInput(Input input) {
@@ -52,15 +61,25 @@ public class NeuronGame implements AbstractGame {
 
     @Override
     public void update(GameContainer gc, float dt) {
-        brain.getIn("i").setInput(gc.getInput().getMouseX());
+        inputBall.getPos().setX((float)gc.getInput().getMouseX());
+        inputBall.getPos().setY((float)gc.getInput().getMouseY());
+
+        brain.getIn("i1").setInput(inputBall.getPos().getX());
+        brain.getIn("i2").setInput(inputBall.getPos().getY());
         brain.update(dt);
+
         updateUserInput(gc.getInput());
+
+        outputBall.getPos().setX((float)brain.getOut("o1").result());
+        outputBall.getPos().setY((float)brain.getOut("o2").result());
     }
 
     @Override
     public void render(GameContainer gc) {
-        gc.getRenderer().clear(HexColors.GREY);
+        gc.getRenderer().clear(HexColors.WHITE);
         brain.drawYourSelf(gc.getRenderer());
+        inputBall.drawYourSelf(gc.getRenderer());
+        outputBall.drawYourSelf(gc.getRenderer());
     }
 
 }

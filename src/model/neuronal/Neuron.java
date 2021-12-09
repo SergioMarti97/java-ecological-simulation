@@ -111,7 +111,7 @@ public class Neuron implements Updatable, Drawable, Clickable2D {
             int ey = (int)e.getKey().getB().getPos().getY();
             drawConnection(r, sx, sy, ex, ey, e.getValue());
         }
-        b.drawYourSelf(r);
+        DrawUtils.drawBall(r, b);
         r.drawText(b.toString(), (int)b.getPos().getX(), (int)b.getPos().getY(), HexColors.BLACK);
         r.drawText(functionName, (int)b.getPos().getX(), (int)b.getPos().getY() + 25, HexColors.BLACK);
         r.drawText(String.format("in: %.3f", input), (int)b.getPos().getX(), (int)b.getPos().getY() + 50, HexColors.BLACK);
