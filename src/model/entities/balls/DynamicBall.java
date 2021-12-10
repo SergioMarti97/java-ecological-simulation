@@ -3,6 +3,7 @@ package model.entities.balls;
 import model.CustomColor;
 import model.DrawUtils;
 import model.entities.Updatable;
+import model.physics.Dynamical;
 import olcPGEApproach.gfx.HexColors;
 import olcPGEApproach.gfx.Renderer;
 import olcPGEApproach.vectors.points2d.Vec2df;

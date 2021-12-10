@@ -6,7 +6,7 @@ import model.Clickable2D;
 import model.entities.balls.Ball;
 import model.entities.Updatable;
 import model.entities.balls.DynamicBall;
-import model.entities.balls.Dynamical;
+import model.physics.Dynamical;
 import model.entities.factories.BallFactory;
 import model.entities.live.Energetic;
 import model.entities.live.LivingBall;

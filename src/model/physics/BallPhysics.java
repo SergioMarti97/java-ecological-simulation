@@ -3,7 +3,6 @@ package model.physics;
 import javafx.util.Pair;
 import model.entities.balls.Ball;
 import model.entities.balls.DynamicBall;
-import model.entities.balls.Dynamical;
 
 import java.util.ArrayList;
 import java.util.List;

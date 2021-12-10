@@ -1,4 +1,4 @@
-package model.entities.balls;
+package model.physics;
 
 import olcPGEApproach.vectors.points2d.Vec2df;
 
