@@ -1,7 +1,10 @@
 package model.physics;
 
 import model.entities.balls.Ball;
-import model.shapes.AlineAxisRectangle;
+import model.shapes.alineaxisrectangle.AlineAxisRectangle;
+import model.shapes.alineaxisrectangle.AlineAxisRectangleDouble;
+import model.shapes.alineaxisrectangle.AlineAxisRectangleFloat;
+import model.shapes.alineaxisrectangle.AlineAxisRectangleInteger;
 import olcPGEApproach.vectors.points2d.Vec2d;
 import olcPGEApproach.vectors.points2d.Vec2dd;
 import olcPGEApproach.vectors.points2d.Vec2df;
@@ -76,8 +79,28 @@ public class CollisionDetection {
                 y >= posY && y <= (posY + h);
     }
 
-    public static boolean isPointInRect(double x, double y, AlineAxisRectangle rect) {
-        return isPointInRect(x, y, rect.getPosX(), rect.getPosY(), rect.getWidth(), rect.getHeight());
+    public static boolean isPointInRect(double x, double y, AlineAxisRectangleInteger ri) {
+        return isPointInRect(x, y, ri.getPosX(), ri.getPosY(), ri.getWidth(), ri.getHeight());
+    }
+
+    public static boolean isPointInRect(double x, double y, AlineAxisRectangleFloat rf) {
+        return isPointInRect(x, y, rf.getPosX(), rf.getPosY(), rf.getWidth(), rf.getHeight());
+    }
+
+    public static boolean isPointInRect(double x, double y, AlineAxisRectangleDouble rd) {
+        return isPointInRect(x, y, rd.getPosX(), rd.getPosY(), rd.getWidth(), rd.getHeight());
+    }
+
+    public static <T extends Vec2d> boolean isPointInRect(double x, double y, AlineAxisRectangle<T> r) {
+        if (r instanceof AlineAxisRectangleInteger) {
+            return isPointInRect(x, y, (AlineAxisRectangleInteger) r);
+        } else if (r instanceof AlineAxisRectangleFloat) {
+            return isPointInRect(x, y, (AlineAxisRectangleFloat) r);
+        } else if (r instanceof AlineAxisRectangleDouble) {
+            return isPointInRect(x, y, (AlineAxisRectangleDouble) r);
+        } else {
+            return false;
+        }
     }
 
     // is point in triangle

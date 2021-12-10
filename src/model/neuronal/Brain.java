@@ -6,6 +6,7 @@ import model.Clickable2D;
 import model.Drawable;
 import model.entities.Updatable;
 import model.physics.CollisionDetection;
+import model.shapes.alineaxisrectangle.AlineAxisRectangleInteger;
 import olcPGEApproach.Input;
 import olcPGEApproach.gfx.HexColors;
 import olcPGEApproach.gfx.Renderer;
@@ -34,9 +35,9 @@ public class Brain implements Updatable, Drawable, Clickable2D {
     private final ArrayList<ArrayList<Neuron>> layers = new ArrayList<>();
 
     // fields to draw the brain
-    private final Vec2di size = new Vec2di(800, 600);
 
-    private final Vec2di offset = new Vec2di();
+    private final AlineAxisRectangleInteger background =
+            new AlineAxisRectangleInteger(new Vec2di(), new Vec2di(800, 600), 0xFF8EACAC);
 
     private final Vec2di paddingLT = new Vec2di(10, 10);
 
@@ -70,7 +71,7 @@ public class Brain implements Updatable, Drawable, Clickable2D {
     // Constructors
 
     public Brain() {
-
+        background.setFill(true);
     }
 
     public Brain(HashMap<String, Neuron> inputs, HashMap<String, Neuron> outputs, ArrayList<Neuron> neurons) {
@@ -89,6 +90,8 @@ public class Brain implements Updatable, Drawable, Clickable2D {
         }
         // Make the layers of the neurons
         setNumLayers(numLayers);
+
+        background.setFill(true);
     }
 
     // methods
@@ -137,7 +140,8 @@ public class Brain implements Updatable, Drawable, Clickable2D {
 
     @Override
     public boolean isMouseInside(double mouseX, double mouseY) {
-        return CollisionDetection.isPointInRect(mouseX, mouseY, offset.getX(), offset.getY(), size.getX(), size.getY());
+        //return CollisionDetection.isPointInRect(mouseX, mouseY, offset.getX(), offset.getY(), size.getX(), size.getY());
+        return background.isMouseInside(mouseX, mouseY);
     }
 
     public Neuron isMouseInsideNeuron(double mouseX, double mouseY) {
@@ -151,8 +155,8 @@ public class Brain implements Updatable, Drawable, Clickable2D {
 
     public boolean isMouseInsideMiniRect(double mouseX, double mouseY) {
         return CollisionDetection.isPointInRect(mouseX, mouseY,
-                offset.getX() + (size.getX() - sizeMiniRect.getX()),
-                offset.getY() + (size.getY() - sizeMiniRect.getY()),
+                background.getPosX() + (background.getWidth() - sizeMiniRect.getX()),
+                background.getPosY() + (background.getHeight() - sizeMiniRect.getY()),
                 sizeMiniRect.getX(),
                 sizeMiniRect.getY());
     }
@@ -178,8 +182,8 @@ public class Brain implements Updatable, Drawable, Clickable2D {
                 isMiniRectSelected = true;
                 mousePos.setX((int)input.getMouseX());
                 mousePos.setY((int)input.getMouseY());
-                sizeBefore.setX(size.getX());
-                sizeBefore.setY(size.getY());
+                sizeBefore.setX(background.getWidth());
+                sizeBefore.setY(background.getHeight());
             }
 
             if (isMouseInside(input.getMouseX(), input.getMouseY()) &&
@@ -189,8 +193,8 @@ public class Brain implements Updatable, Drawable, Clickable2D {
                 isSelected = true;
                 mousePos.setX((int)input.getMouseX());
                 mousePos.setY((int)input.getMouseY());
-                offsetBefore.setX(offset.getX());
-                offsetBefore.setY(offset.getY());
+                offsetBefore.setX(background.getPosX());
+                offsetBefore.setY(background.getPosY());
             }
         }
         if (input.isButtonHeld(MouseButton.PRIMARY)) {
@@ -200,13 +204,13 @@ public class Brain implements Updatable, Drawable, Clickable2D {
                 calConnectionsPositions();
             }
             if (isSelected) {
-                offset.setX(offsetBefore.getX() + ((int) input.getMouseX() - mousePos.getX()));
-                offset.setY(offsetBefore.getY() + ((int) input.getMouseY() - mousePos.getY()));
+                background.setPosX(offsetBefore.getX() + ((int) input.getMouseX() - mousePos.getX()));
+                background.setPosY(offsetBefore.getY() + ((int) input.getMouseY() - mousePos.getY()));
                 calNeuronsPositions();
             }
             if (isMiniRectSelected) {
-                size.setX(sizeBefore.getX() + ((int)input.getMouseX() - sizeBefore.getX()));
-                size.setY(sizeBefore.getY() + ((int)input.getMouseY() - sizeBefore.getY()));
+                background.setWidth(sizeBefore.getX() + ((int)input.getMouseX() - sizeBefore.getX()));
+                background.setHeight(sizeBefore.getY() + ((int)input.getMouseY() - sizeBefore.getY()));
                 calNeuronsPositions();
             }
         }
@@ -251,30 +255,46 @@ public class Brain implements Updatable, Drawable, Clickable2D {
         }
     }
 
-    @Override
-    public void update(float dt) {
-        // clear neuron inputs
+    /**
+     * This method clears the neuron inputs.
+     * Input neurons not clear its input.
+     */
+    private void clearNeuronInputs() {
         for (Map.Entry<Integer, Neuron> e : neurons.entrySet()) {
-            // if the neuron is an input, not clear its input
             if (!inputs.containsValue(e.getKey())) {
                 e.getValue().clearInput();
             }
         }
-        // update all neurons
-        for (Neuron n : neurons.values().stream().sorted(Comparator.comparingInt(Neuron::getLayer)).collect(Collectors.toList())) {
+    }
+
+    /**
+     * This method updates all the neurons.
+     * For update, it sorts the neurons by layer.
+     * @param dt the time between two frames
+     */
+    private void updateNeurons(float dt) {
+        for (Neuron n : neurons.values().stream()
+                .sorted(Comparator.comparingInt(Neuron::getLayer))
+                .collect(Collectors.toList())) {
             n.update(dt);
         }
+    }
+
+    @Override
+    public void update(float dt) {
+        clearNeuronInputs();
+        updateNeurons(dt);
     }
 
     // drawing methods
 
     public void setDrawingParameters(Vec2di size, Vec2di offset, Vec2di paddingLT, Vec2di paddingRB) {
         // Copy the values
-        this.size.setX(size.getX());
-        this.size.setY(size.getY());
+        background.setWidth(size.getX());
+        background.setHeight(size.getY());
 
-        this.offset.setX(offset.getX());
-        this.offset.setY(offset.getY());
+        background.setPosX(offset.getX());
+        background.setPosY(offset.getY());
 
         this.paddingLT.setX(paddingLT.getX());
         this.paddingLT.setY(paddingLT.getY());
@@ -289,8 +309,8 @@ public class Brain implements Updatable, Drawable, Clickable2D {
      * Cal the real size of the square to paint the brain
      */
     public void calRealSize() {
-        realSize.setX(size.getX() - paddingLT.getX() - paddingRB.getX());
-        realSize.setY(size.getY() - paddingLT.getY() - paddingRB.getY());
+        realSize.setX(background.getWidth() - paddingLT.getX() - paddingRB.getX());
+        realSize.setY(background.getHeight() - paddingLT.getX() - paddingRB.getX());
     }
 
     /**
@@ -306,7 +326,7 @@ public class Brain implements Updatable, Drawable, Clickable2D {
         calRealSize();
 
         // todo hay problemas con el calculo del ancho de la seccion por ser una division entera, hay que acarrear el error
-        int x = offset.getX() + paddingLT.getX();
+        int x = background.getPosX() + paddingLT.getX();
 
         int sectionW = realSize.getX();
         if (getNumLayers() >= 1) {
@@ -315,7 +335,7 @@ public class Brain implements Updatable, Drawable, Clickable2D {
 
         x += sectionW / 2;
         for (ArrayList<Neuron> layer : layers) {
-            int y = offset.getY() + paddingLT.getY();
+            int y = background.getPosY() + paddingLT.getY();
 
             int sectionH = realSize.getY();
             if (layer.size() >= 1) {
@@ -336,8 +356,8 @@ public class Brain implements Updatable, Drawable, Clickable2D {
 
     private void drawSections(Renderer r) {
         int sectionW = realSize.getX() / getNumLayers();
-        int x = offset.getX() + paddingLT.getX();
-        int y = offset.getY() + paddingLT.getY();
+        int x = background.getPosX() + paddingLT.getX();
+        int y = background.getPosY() + paddingLT.getY();
         for (int i = 0; i < getNumLayers(); i++) {
             r.drawRect(x, y, sectionW, realSize.getY(), HexColors.BLACK);
             String layerName = "Layer " + i;
@@ -354,13 +374,7 @@ public class Brain implements Updatable, Drawable, Clickable2D {
 
     @Override
     public void drawYourSelf(Renderer r) {
-        r.drawFillRect(
-                offset.getX(),
-                offset.getY(),
-                size.getX(),
-                size.getY(),
-                0xFF8EACAC
-        );
+        background.drawYourSelf(r);
         drawSections(r);
         for (Neuron n : neurons.values().stream().sorted(Comparator.comparingInt(Neuron::getLayer)).collect(Collectors.toList())) {
             n.drawYourSelf(r);
@@ -404,11 +418,13 @@ public class Brain implements Updatable, Drawable, Clickable2D {
     }
 
     public Vec2di getSize() {
-        return size;
+        //return size;
+        return background.getSize();
     }
 
     public Vec2di getOffset() {
-        return offset;
+        //return offset;
+        return background.getPos();
     }
 
     public Vec2di getPaddingLT() {
