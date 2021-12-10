@@ -144,7 +144,7 @@ public class BrainUtils {
                 }
             } while (line != null);
 
-            b.setNumLayers(numLayers);
+            b.setNumLayers(numLayers + 1);
 
             for (String con : connections) {
                 String[] info = con.split(":");
@@ -190,7 +190,7 @@ public class BrainUtils {
             for (double i = min; i < max; i += step) {
                 brain.getIn(input).setInput(i);
                 brain.update(0);
-                double r = brain.getOut(output).result();
+                double r = brain.getOut(output).getOutput();
                 pw.println("" + i + ';' + r);
             }
         } catch (IOException e) {

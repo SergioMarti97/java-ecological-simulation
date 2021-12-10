@@ -1,11 +1,10 @@
 package games;
 
 import javafx.scene.input.KeyCode;
+import javafx.scene.input.MouseButton;
 import model.entities.balls.Ball;
 import model.neuronal.Brain;
 import model.neuronal.BrainUtils;
-import model.neuronal.Neuron;
-import model.neuronal.NeuronFunctions;
 import olcPGEApproach.AbstractGame;
 import olcPGEApproach.GameContainer;
 import olcPGEApproach.Input;
@@ -27,21 +26,21 @@ public class NeuronGame implements AbstractGame {
     @Override
     public void initialize(GameContainer gc) {
         brain = new Brain();
-        BrainUtils.readFromFile(brain, path);
+        //BrainUtils.readFromFile(brain, path);
 
-        /*for (int i = 0; i < 2; i++) {
-            Neuron n = BrainUtils.buildRndNeuron(new Random(), 12, 5);
-            BrainUtils.addNeuron(brain, 2, n);
-        }*/
+        String[] in = {"i1", "i2"};
+        String[] out = {"o1", "o2"};
 
-        brain.calNeuronsPositions();
+        brain = BrainUtils.buildSimpleBrain(in, out, 4, 1);
+
+        brain.calRealSize();
 
         outputBall = new Ball(new Vec2df(), 12, HexColors.YELLOW);
         inputBall = new Ball(new Vec2df(), 12, HexColors.ORANGE);
     }
 
-    private void updateUserInput(Input input) {
-        brain.updateUserInput(input);
+    private void updateUserInput(Input input, float dt) {
+        brain.updateUserInput(input, dt);
 
         if (input.isKeyDown(KeyCode.R)) {
             BrainUtils.makeRndConnection(brain, new Random(), 1, -1);
@@ -57,6 +56,10 @@ public class NeuronGame implements AbstractGame {
             BrainUtils.saveToFile(brain, path);
             System.out.println("saved brain");
         }
+
+        if (input.isKeyDown(KeyCode.A)) {
+            brain.addLayer(0);
+        }
     }
 
     @Override
@@ -68,15 +71,15 @@ public class NeuronGame implements AbstractGame {
         brain.getIn("i2").setInput(inputBall.getPos().getY());
         brain.update(dt);
 
-        updateUserInput(gc.getInput());
+        updateUserInput(gc.getInput(), dt);
 
-        outputBall.getPos().setX((float)brain.getOut("o1").result());
-        outputBall.getPos().setY((float)brain.getOut("o2").result());
+        outputBall.getPos().setX((float)brain.getOut("o1").getOutput());
+        outputBall.getPos().setY((float)brain.getOut("o2").getOutput());
     }
 
     @Override
     public void render(GameContainer gc) {
-        gc.getRenderer().clear(HexColors.WHITE);
+        gc.getRenderer().clear(0xFFB2D8D8);
         brain.drawYourSelf(gc.getRenderer());
         inputBall.drawYourSelf(gc.getRenderer());
         outputBall.drawYourSelf(gc.getRenderer());

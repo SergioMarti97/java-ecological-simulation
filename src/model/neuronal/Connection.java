@@ -6,6 +6,7 @@ import model.Drawable;
 import model.physics.CollisionDetection;
 import olcPGEApproach.gfx.HexColors;
 import olcPGEApproach.gfx.Renderer;
+import olcPGEApproach.vectors.points2d.Vec2df;
 
 /**
  * This class represent a connection between
@@ -16,15 +17,17 @@ public class Connection implements Clickable2D, Drawable {
     // Constants
     final int MAX_THICKNESS = 12;
 
-    final int MIN_THICKNESS = 1;
+    final int MIN_THICKNESS = 3;
 
     final int DIFF_THICKNESS = MAX_THICKNESS - MIN_THICKNESS;
 
     // Fields of the connection
 
-    private Neuron ori;
+    private int id = 0;
 
-    private Neuron tar;
+    private Vec2df ori;
+
+    private Vec2df tar;
 
     private double weight;
 
@@ -43,7 +46,7 @@ public class Connection implements Clickable2D, Drawable {
      * @param tar target neuron
      * @param weight weight of the connection
      */
-    public Connection(Neuron ori, Neuron tar, double weight) {
+    public Connection(Vec2df ori, Vec2df tar, double weight) {
         this.ori = ori;
         this.tar = tar;
         this.weight = weight;
@@ -51,9 +54,7 @@ public class Connection implements Clickable2D, Drawable {
         xPoints = new int[4];
         yPoints = new int[4];
 
-        calThickness();
-        calColor();
-        calPointsPos();
+        cal();
     }
 
     private void calThickness(double weight) {
@@ -96,7 +97,7 @@ public class Connection implements Clickable2D, Drawable {
     }
 
     public void calThickness() {
-        calThickness(thickness);
+        calThickness(weight);
     }
 
     public void calColor() {
@@ -105,11 +106,17 @@ public class Connection implements Clickable2D, Drawable {
 
     public void calPointsPos() {
         calPointsPos(
-                (int)this.ori.getB().getPos().getX(),
-                (int)this.ori.getB().getPos().getY(),
-                (int)this.tar.getB().getPos().getX(),
-                (int)this.tar.getB().getPos().getY(),
+                (int)this.ori.getX(),
+                (int)this.ori.getY(),
+                (int)this.tar.getX(),
+                (int)this.tar.getY(),
                 thickness);
+    }
+
+    public void cal() {
+        calThickness();
+        calPointsPos();
+        calColor();
     }
 
     @Override
@@ -131,41 +138,39 @@ public class Connection implements Clickable2D, Drawable {
 
     @Override
     public void drawYourSelf(Renderer r) {
-        if (thickness == MIN_THICKNESS) {
-            r.drawLine(
-                    (int)ori.getB().getPos().getX(),
-                    (int)ori.getB().getPos().getY(),
-                    (int)tar.getB().getPos().getX(),
-                    (int)tar.getB().getPos().getY(),
-                    color);
-        } else {
-            drawThickLine(r, color);
-        }
+        drawThickLine(r, color);
 
         String out = String.format("%.3f", weight);
         int offText = (out.length() / 2) * 10;
-        r.drawText(out,
-                (int)((tar.getB().getPos().getX() - ori.getB().getPos().getX()) / 2 + ori.getB().getPos().getX() - offText),
-                (int)((tar.getB().getPos().getX() - ori.getB().getPos().getY()) / 2 + ori.getB().getPos().getY()),
-                HexColors.BLUE);
+        int textX = (int)((tar.getX() - ori.getX()) / 2 + ori.getX());
+        int textY = (int)((tar.getY() - ori.getY()) / 2 + ori.getY());
+        r.drawText(out, textX  - offText, textY, HexColors.BLUE);
     }
 
     // Getters and Setters
 
-    public Neuron getOri() {
+    public int getId() {
+        return id;
+    }
+
+    public void setId(int id) {
+        this.id = id;
+    }
+
+    public Vec2df getOri() {
         return ori;
     }
 
-    public void setOri(Neuron ori) {
+    public void setOri(Vec2df ori) {
         this.ori = ori;
         calPointsPos();
     }
 
-    public Neuron getTar() {
+    public Vec2df getTar() {
         return tar;
     }
 
-    public void setTar(Neuron tar) {
+    public void setTar(Vec2df tar) {
         this.tar = tar;
         calPointsPos();
     }
@@ -176,8 +181,12 @@ public class Connection implements Clickable2D, Drawable {
 
     public void setWeight(double weight) {
         this.weight = weight;
-        calThickness();
-        calColor();
+        cal();
+    }
+
+    public void addToWeight(double quantity) {
+        this.weight += quantity;
+        cal();
     }
 
 }
