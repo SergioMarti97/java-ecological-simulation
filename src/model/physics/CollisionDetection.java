@@ -18,6 +18,10 @@ public class CollisionDetection {
                 (b1.getR() + b2.getR()) * (b1.getR() + b2.getR());
     }
 
+    public static boolean isPointInCircle(double x, double y, float posX, float posY, float r) {
+        return (x - posX) * (x - posX) + (y - posY) * (y - posY) <= (r * r);
+    }
+
     // Is point in circle methods
 
     public static boolean isPointInCircle(int x, int y, Ball b) {

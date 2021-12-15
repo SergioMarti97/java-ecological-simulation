@@ -131,14 +131,9 @@ public class Connection implements Clickable2D, Drawable {
                         xPoints[3], yPoints[3]);
     }
 
-    public void drawThickLine(Renderer r, int c) {
-        r.drawFillTriangle(xPoints[0], yPoints[0], xPoints[1], yPoints[1], xPoints[2], yPoints[2], c);
-        r.drawFillTriangle(xPoints[0], yPoints[0], xPoints[2], yPoints[2], xPoints[3], yPoints[3], c);
-    }
-
     @Override
     public void drawYourSelf(Renderer r) {
-        drawThickLine(r, color);
+        DrawUtils.drawFillSquare(r, xPoints, yPoints, color);
 
         String out = String.format("%.3f", weight);
         int offText = (out.length() / 2) * 10;
@@ -187,6 +182,22 @@ public class Connection implements Clickable2D, Drawable {
     public void addToWeight(double quantity) {
         this.weight += quantity;
         cal();
+    }
+
+    public int getColor() {
+        return color;
+    }
+
+    public int getThickness() {
+        return thickness;
+    }
+
+    public int[] getXp() {
+        return xPoints;
+    }
+
+    public int[] getYp() {
+        return yPoints;
     }
 
 }

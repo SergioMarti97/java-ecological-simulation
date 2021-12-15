@@ -1,9 +1,9 @@
 package games;
 
 import javafx.scene.input.KeyCode;
-import javafx.scene.input.MouseButton;
 import model.entities.balls.Ball;
 import model.neuronal.Brain;
+import model.neuronal.BrainManager;
 import model.neuronal.BrainUtils;
 import olcPGEApproach.AbstractGame;
 import olcPGEApproach.GameContainer;
@@ -17,6 +17,8 @@ public class NeuronGame implements AbstractGame {
 
     private final String path = "C:\\Users\\Sergio\\IdeaProjects\\JAVAFX\\javafx-pelotas\\resources\\brains\\brain.txt";
 
+    private BrainManager bm;
+
     private Brain brain;
 
     private Ball inputBall;
@@ -26,26 +28,35 @@ public class NeuronGame implements AbstractGame {
     @Override
     public void initialize(GameContainer gc) {
         brain = new Brain();
-        //BrainUtils.readFromFile(brain, path);
+        BrainUtils.readFromFile(brain, path);
 
         String[] in = {"i1", "i2"};
         String[] out = {"o1", "o2"};
 
-        brain = BrainUtils.buildSimpleBrain(in, out, 4, 1);
+        //brain = BrainUtils.buildSimpleBrain(in, out, 4, 1);
 
-        brain.calRealSize();
+        bm = new BrainManager(brain);
+        bm.calRealSize();
+        bm.calNeuronsPositions();
 
         outputBall = new Ball(new Vec2df(), 12, HexColors.YELLOW);
         inputBall = new Ball(new Vec2df(), 12, HexColors.ORANGE);
     }
 
     private void updateUserInput(Input input, float dt) {
-        brain.updateUserInput(input, dt);
+        bm.updateUserInput(input, dt);
 
+        // edit brain
         if (input.isKeyDown(KeyCode.R)) {
             BrainUtils.makeRndConnection(brain, new Random(), 1, -1);
         }
 
+        if (input.isKeyDown(KeyCode.A)) {
+            brain.addLayer(0);
+            bm.calNeuronsPositions();
+        }
+
+        // save brain
         if (input.isKeyDown(KeyCode.T)) {
             String file = "C:\\Users\\Sergio\\IdeaProjects\\JAVAFX\\javafx-pelotas\\resources\\brains\\result_test.txt";
             BrainUtils.saveTest(brain, "i", "o", -100, 100, 1, file);
@@ -57,9 +68,6 @@ public class NeuronGame implements AbstractGame {
             System.out.println("saved brain");
         }
 
-        if (input.isKeyDown(KeyCode.A)) {
-            brain.addLayer(0);
-        }
     }
 
     @Override
@@ -80,7 +88,7 @@ public class NeuronGame implements AbstractGame {
     @Override
     public void render(GameContainer gc) {
         gc.getRenderer().clear(0xFFB2D8D8);
-        brain.drawYourSelf(gc.getRenderer());
+        bm.drawYourSelf(gc.getRenderer());
         inputBall.drawYourSelf(gc.getRenderer());
         outputBall.drawYourSelf(gc.getRenderer());
     }
